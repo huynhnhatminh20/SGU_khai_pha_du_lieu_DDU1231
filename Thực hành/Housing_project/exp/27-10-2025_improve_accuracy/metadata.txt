@@ -1,0 +1,4 @@
+model_name: ScaledGBM_Tuned (n_est=400)
+cv_rmse: 9.379670170496617
+validation_rmse: 3.4499467513108124
+model_type: GradientBoostingRegressor

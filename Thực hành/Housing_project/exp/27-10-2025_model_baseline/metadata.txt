@@ -1,0 +1,4 @@
+model_name: LR
+cv_rmse: 22.006008541988827
+validation_rmse: 5.8357931208083995
+model_type: LinearRegression
