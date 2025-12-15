@@ -1,0 +1,5 @@
+\babel@toc {vietnamese}{}\relax 
+\beamer@sectionintoc {1}{Định nghĩa vấn đề}{3}{0}{1}
+\beamer@sectionintoc {2}{Phân tích dữ liệu khám phá - EDA}{5}{0}{2}
+\beamer@sectionintoc {3}{Chuẩn bị dữ liệu và xử lý đặc trưng}{15}{0}{3}
+\beamer@sectionintoc {4}{Huấn luyện mô hình}{18}{0}{4}

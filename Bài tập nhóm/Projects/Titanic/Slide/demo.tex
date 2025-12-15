@@ -1,0 +1,793 @@
+\documentclass[
+	11pt
+]{beamer}
+\usetheme{Madrid}
+\useoutertheme{default} % bỏ hiệu ứng shadow
+\setbeamertemplate{background canvas}[default] % bỏ bóng đổ hoàn toàn
+
+\setbeamertemplate{footline}{} % bỏ thanh cuối
+\setbeamertemplate{navigation symbols}{} % bỏ icon điều hướng
+
+
+\usepackage[utf8]{inputenc}   % Cho phép nhập Unicode
+\usepackage[T1]{fontenc}      % Font encoding hỗ trợ ký tự toán học
+\usepackage{lmodern}          % Font hiện đại
+\usepackage{textcomp}         % Bổ sung ký tự đặc biệt
+\usepackage[vietnamese]{babel} % Nếu dùng tiếng Việt
+\graphicspath{{Images/}{./}} % Specifies where to look for included images (trailing slash required)
+
+\usepackage{booktabs} % Allows the use of \toprule, \midrule and \bottomrule for better rules in tables
+\usepackage{amsmath} % Để sử dụng các ký hiệu toán học như P[...]
+\usepackage{tikz} % Để vẽ các dấu ngoặc và chú thích
+\usepackage{svg}
+\usetikzlibrary{positioning, shapes.geometric, arrows}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepackage{pgf-pie}
+
+%----------------------------------------------------------------------------------------
+%	SELECT LAYOUT THEME
+%----------------------------------------------------------------------------------------
+
+
+
+%\usetheme{default}
+%\usetheme{AnnArbor}
+%\usetheme{Antibes}
+%\usetheme{Bergen}
+%\usetheme{Berkeley}
+%\usetheme{Berlin}
+%\usetheme{Boadilla}
+%\usetheme{CambridgeUS}
+%\usetheme{Copenhagen}
+%\usetheme{Darmstadt}
+%\usetheme{Dresden}
+%\usetheme{Frankfurt}
+%\usetheme{Goettingen}
+%\usetheme{Hannover}
+%\usetheme{Ilmenau}
+%\usetheme{JuanLesPins}
+%\usetheme{Luebeck}
+
+
+%\usetheme{Malmoe}
+%\usetheme{Marburg}
+%\usetheme{Montpellier}
+%\usetheme{PaloAlto}
+%\usetheme{Pittsburgh}
+%\usetheme{Rochester}
+%\usetheme{Singapore}
+%\usetheme{Szeged}
+%\usetheme{Warsaw}
+
+
+
+
+\usefonttheme{default} 
+\usepackage{palatino} % Use the Palatino font for serif text
+
+
+\usepackage[default]{opensans} 
+
+%----------------------------------------------------------------------------------------
+%	PRESENTATION INFORMATION
+%----------------------------------------------------------------------------------------
+\title[BÁO CÁO KẾT QUẢ BÀI TẬP]{BÁO CÁO KẾT QUẢ BÀI TẬP}
+\subtitle{Phân loại người sống sót trên tàu Titanic}
+
+\author[Nhóm 4]{%
+	\textbf{Giảng viên hướng dẫn:} TS. Đỗ Như Tài \\[0.8em]
+	\textbf{Sinh viên thực hiện:}\\[0.3em]
+	Trần Đình Hải \\ 
+	Huỳnh Nhật Minh \\ 
+	Lê Thành Nhân \\ 
+	Trần Công Minh
+}
+
+\institute[SGU]{Trường Đại học Sài Gòn}
+\date{\today}
+
+
+
+
+\begin{document}
+	
+
+%----------------------------------------------------------------------------------------
+%	TITLE SLIDE
+%----------------------------------------------------------------------------------------
+
+\begin{frame}
+	\titlepage % Output the title slide, automatically created using the text entered in the PRESENTATION INFORMATION block above
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+%	TABLE OF CONTENTS SLIDE
+%----------------------------------------------------------------------------------------
+
+
+\begin{frame}
+	\frametitle{Presentation Overview} 
+	
+	\tableofcontents 
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+%	PRESENTATION BODY SLIDES
+%----------------------------------------------------------------------------------------
+%==================================================
+%================ SLIDE 1 ==================
+\section{Định nghĩa vấn đề}
+\begin{frame}{Định nghĩa vấn đề}
+\begin{itemize}
+    \item Mục tiêu: Dự đoán hành khách \textbf{sống sót hay không} trên tàu Titanic.
+    \item \textbf{train.csv}: chứa đặc điểm hành khách và nhãn \texttt{Survived (0 = Không, 1 = Có)}.
+    \item \textbf{test.csv}: chứa các đặc điểm tương tự, \textbf{không có cột Survived}.
+    \item Dữ liệu dùng để huấn luyện và kiểm tra mô hình học máy.
+\end{itemize}
+\end{frame}
+
+%================ SLIDE 2 ==================
+\begin{frame}{Đặc trưng đầu vào và đầu ra}
+
+\begin{itemize}
+    \item \textbf{Pclass}: Hạng vé (1–3)
+    \item \textbf{Name}: Tên hành khách
+    \item \textbf{Sex}: Giới tính (nam/nữ)
+    \item \textbf{Age}: Tuổi (năm)
+    \item \textbf{SibSp}: Số anh chị em / vợ chồng đi cùng
+    \item \textbf{Parch}: Số cha mẹ / con cái đi cùng
+    \item \textbf{Ticket}: Số vé
+    \item \textbf{Fare}: Giá vé (bảng Anh)
+    \item \textbf{Cabin}: Mã phòng hoặc khoang tàu
+    \item \textbf{Embarked}: Cảng lên tàu (C/Q/S)
+\end{itemize}
+
+
+%------ Cột phải: sơ đồ minh họa ------
+
+\centering
+\begin{tikzpicture}[node distance=1.2cm,>=stealth,thick]
+\tikzstyle{box}=[rectangle, rounded corners, draw=blue!50, fill=blue!10,
+                 text width=3.2cm, text centered, minimum height=1cm]
+\tikzstyle{arrow}=[->, line width=1pt]
+
+\node[box] (input) {Đầu vào\\(Pclass, Sex, Age, Fare, ...)};
+\node[box, right=of input, text width=2.8cm] (model) {Mô hình học máy};
+\node[box, right=of model, fill=green!10, draw=green!50,text width=2.8cm] (output) {Đầu ra\\Survived (0/1)};
+
+\draw[arrow] (input) -- (model);
+\draw[arrow] (model) -- (output);
+\end{tikzpicture}
+
+\end{frame}
+
+\section{Phân tích dữ liệu khám phá - EDA}
+%================ SLIDE 1 ==================
+\begin{frame}{Tổng quan và tính toàn vẹn dữ liệu}
+\begin{itemize}
+    \item Tập \textbf{train.csv}: 891 dòng, 12 cột  
+    \item Biến gồm dạng số và dạng chuỗi  
+    \item Thiếu dữ liệu ở: \texttt{Age}, \texttt{Cabin}, \texttt{Embarked}  
+    \item \textbf{Age:} 177 thiếu (~20\%), \textbf{Cabin:} 687 thiếu (~77\%), \textbf{Embarked:} 2 thiếu (<1\%)  
+    \item Cột mục tiêu: \textbf{Survived (0 = Không, 1 = Có)}  
+    \item Không có bản ghi trùng → Dữ liệu duy nhất (unique)  
+\end{itemize}
+\end{frame}
+
+%================ SLIDE 2 ==================
+\begin{frame}{Thống kê mô tả và Phân bố biến phân lớp (Survived)}
+	
+	\textbf{Thống kê mô tả các biến số:}
+	\begin{itemize}
+		\item \textbf{Pclass:} Trung bình 2.31 $\rightarrow$ đa số hạng 2–3  
+		\item \textbf{Age:} TB $\approx$ 29.7, lệch chuẩn $\approx$ 14.5 (0.42–80)  
+		\item \textbf{SibSp/Parch:} Đa số đi một mình, tối đa 8 anh chị em hoặc 6 cha mẹ/con  
+		\item \textbf{Fare:} TB $\approx$ 32.2, lệch chuẩn $\approx$ 49.7, có outlier đến 512.33  
+	\end{itemize}
+	
+	\vspace{0.6em}
+	
+	\textbf{Phân bố biến phân lớp \texttt{Survived}:}
+	\begin{itemize}
+		\item Dữ liệu hơi \textbf{mất cân bằng (imbalanced)}.
+	\end{itemize}
+	
+	\vspace{0.6em}
+	
+	\begin{center}
+		\begin{tikzpicture}
+			\pie[
+			text=legend,
+			radius=1.8,
+			color={red!60, green!60},
+			sum=auto
+			]{
+				62/Không sống sót,
+				38/Sống sót
+			}
+		\end{tikzpicture}
+		
+		\vspace{0.3em}
+		\footnotesize
+		\textit{Biểu đồ 1: Phân bố tỉ lệ sống sót trong tập train.}
+	\end{center}
+	
+\end{frame}
+
+
+
+\begin{frame}{ Đơn biến (Univariate Plots)}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.55\linewidth]{countplot.png}
+    
+    
+\end{figure}
+\begin{itemize}
+    \item Số lượng hành khách \textbf{không sống sót (549)} cao hơn đáng kể so với \textbf{sống sót (342)}.
+    \item Phần lớn hành khách đã không qua khỏi, chiếm khoảng \textbf{61.6\%} tổng khách.
+\end{itemize}
+
+\vspace{1.5em}
+
+
+
+\end{frame}
+
+\begin{frame}{ Box and Whisker Plots}
+
+
+\begin{itemize}
+    \item \textbf{Age:} 20–38 tuổi, trung vị 28–30, có outliers lớn tuổi.  
+    \item \textbf{SibSp:} 75\% từ 0–1, trung vị 0, vài giá trị ngoại lệ.  
+    \item \textbf{Parch:} Đa số 0, có outliers.  
+    \item \textbf{Fare:} Lệch phải mạnh, trung vị < 20, outliers > 500.  
+    \item \textbf{Fare} có thang đo lớn → các biến khác bị nén ở đáy.  
+\end{itemize}
+
+
+\begin{columns}[c]
+    \column{0.5\textwidth}
+    \begin{center}
+        \includegraphics[width=\linewidth]{output.png}
+    \end{center}
+
+    \column{0.5\textwidth}
+    \begin{center}
+        \includegraphics[width=\linewidth]{output1.png}
+    \end{center}
+\end{columns}
+\end{frame}
+\begin{frame}{Phân bố tuổi theo tình trạng sống sót}
+	
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=0.6\linewidth]{age_distribution_survival.png}
+		
+	\end{figure}
+	
+	\begin{itemize}
+		\item Trẻ em được ưu tiên rõ rệt  
+		\item Đỉnh sống sót cao ở nhóm <10  
+		\item Người lớn (20–40) tử vong nhiều  
+		\item Đây là nhóm tuổi đông nhất  
+		\item “Ưu tiên trẻ em” thể hiện rõ  
+		\item Nam 20–40 có rủi ro cao nhất  
+	\end{itemize}
+	
+\end{frame}
+
+\begin{frame}{Histogram (Sex vs Survived)}
+	
+	
+	\begin{itemize}
+		\item \textbf{Giới tính là yếu tố dự đoán mạnh nhất.}
+		
+		\item \textbf{Nữ (female):}
+		\begin{itemize}
+			\item Tỷ lệ sống sót vượt trội.
+			\item Số sống sót cao hơn tử vong.
+			\item 233/342 người sống sót là nữ (≈68\%).
+		\end{itemize}
+		
+		\item \textbf{Nam (male):}
+		\begin{itemize}
+			\item Tỷ lệ tử vong rất cao.
+			\item 468/549 người tử vong là nam (≈85\%).
+		\end{itemize}
+		
+	\end{itemize}
+	
+	
+	\begin{center}
+		\includegraphics[width=0.5\linewidth]{barplot.png}
+	\end{center}
+	
+\end{frame}
+
+\begin{frame}{Phân tích theo hạng vé (Pclass)}
+	\small
+	\begin{itemize}
+		\item Hạng vé càng cao → cơ hội sống càng lớn.  
+		\item Hạng 1: sống sót nhiều hơn tử vong.  
+		\item Hạng 2: gần cân bằng.  
+		\item Hạng 3: tử vong áp đảo.  
+		\item Pclass thể hiện rõ ảnh hưởng của địa vị xã hội.
+	\end{itemize}
+	
+	\vspace{0.5em}
+	\centering
+	\includegraphics[width=0.5\textwidth]{pclass_survival.png}
+\end{frame}
+\begin{frame}{Phân tích đa biến (Multivariate Analysis)}
+	\small
+	\begin{itemize}
+		\item Hạng vé cao $\Rightarrow$ cơ hội sống cao hơn.  
+		\item Người sống sót thường trẻ và trả vé cao hơn.  
+		\item Gia đình nhỏ (1–2 người đi cùng) có tỉ lệ sống tốt hơn.  
+		\item \textbf{Fare} và \textbf{Pclass} tương quan nghịch rõ rệt.  
+		\item \textbf{Age}, \textbf{SibSp}, \textbf{Parch} ít tương quan mạnh.
+	\end{itemize}
+	
+	\vspace{0.5em}
+	\centering
+	\includegraphics[width=0.5\textwidth]{multivariate_plot.png}
+\end{frame}
+\begin{frame}{Ma trận tương quan}
+	\small
+	\begin{itemize}
+		\item Không biến nào |r| $>$ 0.8  
+		\item Pclass-Fare: tương quan mạnh  
+		\item SibSp-Parch: liên hệ nhẹ  
+		\item Age: gần như độc lập  
+	\end{itemize}
+	
+	\centering
+	\includegraphics[width=0.58\textwidth]{correlation_matrix.png}
+\end{frame}
+
+
+\begin{frame}{Phân bố sống sót}
+	\begin{itemize}
+		\item Age: Trẻ có lợi thế sống sót  
+		\item Fare: Vé cao hạng sang sống sót nhiều  
+		\item Pclass: Hạng 1–2 sống sót, hạng 3 tử vong đa số  
+		\item SibSp/Parch: có 1–2 người đi cùng sống cao hơn
+	\end{itemize}
+	
+	\centering
+	\includegraphics[width=0.5\textwidth]{comparison_boxplots.png}
+\end{frame}
+
+\section{Chuẩn bị dữ liệu và xử lý đặc trưng}
+\begin{frame}{Tạo đặc trưng mới (Feature Engineering)}
+	\small
+	\textbf{(1) FamilySize = SibSp + Parch + 1}
+	\begin{itemize}
+		\item Người đi một mình sống sót rất ít.  
+		\item Gia đình nhỏ (2–4 người) có tỉ lệ sống cao nhất.  
+		\item Gia đình lớn (>5) khó sống sót do khó hỗ trợ nhau.  
+	\end{itemize}
+	
+	\vspace{0.4em}
+	\textbf{(2) Title (Mr, Mrs, Miss, Master, Other)}
+	\begin{itemize}
+		\item \textbf{Mr:} đông nhất, tỉ lệ tử vong cao.  
+		\item \textbf{Mrs, Miss, Master:} sống sót nhiều hơn rõ rệt.  
+		\item \textbf{Other:} hiếm, đa phần tử vong.  
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Xử lý giá trị thiếu và Mã hoá dữ liệu}
+	\small
+	\begin{itemize}
+		\item \textbf{Age:} điền bằng giá trị trung bình.  
+		\item \textbf{Embarked:} thay bằng giá trị xuất hiện nhiều nhất.  
+		\item \textbf{Cabin:} xoá do thiếu quá nhiều.  
+		\item \textbf{Mã hoá danh mục:} dùng LabelEncoder cho \textit{Sex, Embarked, Title, Family\_cate}.  
+		\item Sau mã hoá:  
+		\textit{Sex → [female, male]}, \textit{Embarked → [C, Q, S]},  
+		\textit{Title → [Master, Miss, Mr, Mrs, Other]},  
+		\textit{Family\_cate → [Alone, Small, Medium, Large]}.  
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Chuẩn hóa dữ liệu}
+	
+	\textbf{Phương pháp:}  
+	Dữ liệu được chuẩn hóa bằng \textbf{StandardScaler} và \textbf{MinMaxScaler}  
+	để đưa các đặc trưng về cùng thang đo, tránh sai lệch do đơn vị khác nhau.
+	
+	\vspace{0.8em}
+	\centering
+	\begin{tabular}{|l|c|c|c|}
+		\hline
+		\textbf{Biến} & \textbf{Phạm vi gốc} & \textbf{MinMaxScaler} & \textbf{StandardScaler} \\
+		\hline
+		Age & 0.42 -- 80.00 & [0, 1] & [-2.2, 2.5] \\
+		Fare & 0.00 -- 512.33 & [0, 1] & [-0.6, 9.8] \\
+		Parch & 0 -- 6 & [0, 1] & [-0.5, 6.0] \\
+		SibSp & 0 -- 8 & [0, 1] & [-0.5, 7.0] \\
+		FamilySize & 1 -- 11 & [0, 1] & [-0.5, 6.0] \\
+		\hline
+	\end{tabular}
+	
+	\vspace{0.6em}
+	\small{
+		Các giá trị min và max được tính tự động từ tập huấn luyện.  
+		\textbf{StandardScaler} đưa dữ liệu về trung bình 0 và độ lệch chuẩn 1,  
+		nhưng do tồn tại nhiều outlier (đặc biệt ở \textit{Fare}),  
+		một số giá trị vượt quá khoảng [-3, 3].
+	}
+	
+\end{frame}
+
+
+\section{Huấn luyện mô hình}
+
+
+
+
+\begin{frame}{Đánh Giá -- StandardScaler}
+	\begin{columns}[T,onlytextwidth]
+		\column{0.45\textwidth}
+		\textbf{Dữ liệu:} \texttt{df\_standard.xlsx}
+		\vspace{0.4em}
+		\textbf{Chiến lược:}
+		K-Fold CV ($k=5$, Stratified)
+		$\Rightarrow$ Metric: \textbf{Accuracy (Mean $\pm$ Std)}
+		\vspace{0.8em}
+		\textbf{Kích thước:}
+		$X_{train}$: (891, 10 features) \\
+		$y_{train}$: (891,) \\
+		Mỗi fold: $\sim$712 train, $\sim$179 valid
+		
+		\column{0.55\textwidth}
+		\centering
+		\begin{tikzpicture}[
+			node distance=0.85cm and 0.6cm,
+			every node/.style={font=\scriptsize, align=center},
+			stage/.style={
+				rectangle,
+				rounded corners=4pt,
+				draw=blue!70,
+				fill=blue!5,
+				thick,
+				minimum width=3.3cm,
+				minimum height=0.6cm
+			},
+			arrow/.style={->, thick, >=stealth, blue!70}
+			]
+			\node[stage] (s1) {1. Chia dữ liệu \\ $X_{train}, y_{train}$ \\ thành 5 fold};
+			\node[stage, below=of s1] (s2) {2. Mỗi fold: \\ Train 4 phần \\ Valid 1 phần};
+			\node[stage, below=of s2] (s3) {3. Tính Accuracy \\ (Mean $\pm$ Std)};
+			\node[stage, below=of s3] (s4) {4. Huấn luyện lại \\ toàn bộ dữ liệu};
+			\draw[arrow] (s1) -- (s2);
+			\draw[arrow] (s2) -- (s3);
+			\draw[arrow] (s3) -- (s4);
+			\node[
+			draw=blue!50,
+			fill=blue!10,
+			rounded corners=3pt,
+			inner sep=3pt,
+			text width=4.4cm,
+			below=0.4cm of s4,
+			font=\tiny
+			]
+			{Quy trình đánh giá với \textbf{StandardScaler} \\ chuẩn hóa theo z-score};
+		\end{tikzpicture}
+	\end{columns}
+\end{frame}
+
+\begin{frame}{Kết Quả Baseline -- StandardScaler}
+	\centering
+	
+	\begin{tabular}{lccc}
+		\toprule
+		\textbf{Mô hình} & \textbf{Acc} & \textbf{Std} & \textbf{Rank} \\
+		\midrule
+		SVM     & \textbf{0.8238} & $\pm$0.0175 & 1 \\
+		NB      & 0.8014 & $\pm$0.0213 & 2 \\
+		KNN     & 0.8013 & $\pm$0.0171 & 3 \\
+		LDA     & 0.8002 & $\pm$0.0327 & 4 \\
+		LogReg  & 0.7890 & $\pm$0.0204 & 5 \\
+		CART    & 0.7744 & $\pm$0.0188 & 6 \\
+		\bottomrule
+	\end{tabular}
+	
+	\vspace{0.4em}
+	
+	\begin{itemize}
+		\item SVM cao nhất (0.8238), ổn định, overfit +2.84\%
+		\item NB, KNN $\approx$80.1\%; LDA, LogReg ổn
+		\item CART thấp nhất (0.7744), overfit +4.16\%
+		\item SVM vượt 1–5\%
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Phân Tích Boxplot -- StandardScaler}
+	\centering
+	\includegraphics[width=0.9\textwidth]{boxplot_baseline_standardscaler.png}
+	
+	\vspace{0.4em}
+	
+	\begin{itemize}
+		\item SVM: Hiệu suất cao, ổn định tốt
+		\item KNN, LDA: Hiệu suất khá, ổn định
+		\item NB: Ổn định, accuracy trung bình
+		\item LR: Accuracy thấp hơn, ổn định
+		\item CART: Thấp nhất, biến thiên cao
+		\item Kết luận: SVM vượt trội nhất
+	\end{itemize}
+\end{frame}
+
+
+
+\begin{frame}{Tuning \& Kết Quả Final -- StandardScaler}
+	\centering
+	
+	\begin{tabular}{lcc}
+		\toprule
+		\textbf{Mô hình} & \textbf{CV Acc} & \textbf{Train Acc} \\
+		\midrule
+		LogReg  & 0.8070 & 0.8070 \\
+		SVM     & \textbf{0.8283} & 0.8339 \\
+		\bottomrule
+	\end{tabular}
+	
+	\vspace{0.4em}
+	
+	\begin{itemize}
+		\item LogReg: \texttt{C=1.0, l1, balanced}
+		\item SVM: \texttt{C=200, gamma=0.01}
+		\item SVM $\uparrow$ +0.45pp vs baseline
+		\item Chênh Train–CV: +0.56\% → ổn định
+		\item \textbf{Chọn SVM, LR làm final}
+	\end{itemize}
+\end{frame}
+
+
+
+
+\begin{frame}{\textbf{Kết Quả Test – StandardScaler}}
+	
+	\centering
+	
+	\begin{tabular}{lcc}
+		\toprule
+		\textbf{Mô hình} & \textbf{Not Survived} & \textbf{Survived} \\
+		\midrule
+		\textbf{LR} & 127 & 291 \\
+		\textbf{SVM} & 222 & 196 \\
+		\bottomrule
+	\end{tabular}
+	
+	\vspace{0.6em}
+	
+	\begin{itemize}
+		\item \textbf{SVM} dự đoán cân bằng hơn.  
+		\item Giảm lệch lớp, ổn định hơn LR.  
+		\item \textbf{LR} thiên về lớp sống sót.  
+		\item Chốt: \textbf{SVM + StandardScaler} hiệu quả nhất.
+	\end{itemize}
+	
+\end{frame}
+
+
+
+
+
+
+\begin{frame}{Đánh Giá -- MinMaxScaler}
+	\begin{columns}[T,onlytextwidth]
+		\column{0.45\textwidth}
+		\textbf{Dữ liệu:} \texttt{df\_minmax.xlsx}
+		\vspace{0.4em}
+		\textbf{Chiến lược:}
+		K-Fold CV ($k=5$, Stratified)
+		$\Rightarrow$ Metric: \textbf{Accuracy (Mean $\pm$ Std)}
+		\vspace{0.8em}
+		\textbf{Kích thước:}
+		$X_{train}$: (891, 10 features) \\
+		$y_{train}$: (891,) \\
+		Mỗi fold: $\sim$712 train, $\sim$179 valid
+		
+		\column{0.55\textwidth}
+		\centering
+		\begin{tikzpicture}[
+			node distance=0.85cm and 0.6cm,
+			every node/.style={font=\scriptsize, align=center},
+			stage/.style={
+				rectangle,
+				rounded corners=4pt,
+				draw=teal!70,
+				fill=teal!8,
+				thick,
+				minimum width=3.3cm,
+				minimum height=0.6cm
+			},
+			arrow/.style={->, thick, >=stealth, teal!70}
+			]
+			\node[stage] (s1) {1. Chia dữ liệu \\ $X_{train}, y_{train}$ \\ thành 5 fold};
+			\node[stage, below=of s1] (s2) {2. Mỗi fold: \\ Train 4 phần \\ Valid 1 phần};
+			\node[stage, below=of s2] (s3) {3. Tính Accuracy \\ (Mean $\pm$ Std)};
+			\node[stage, below=of s3] (s4) {4. Huấn luyện lại \\ toàn bộ dữ liệu};
+			\draw[arrow] (s1) -- (s2);
+			\draw[arrow] (s2) -- (s3);
+			\draw[arrow] (s3) -- (s4);
+			\node[
+			draw=teal!50,
+			fill=teal!10,
+			rounded corners=3pt,
+			inner sep=3pt,
+			text width=4.4cm,
+			below=0.4cm of s4,
+			font=\tiny
+			]
+			{Quy trình đánh giá với \textbf{MinMaxScaler} \\ chuẩn hóa dữ liệu về khoảng $[0,1]$};
+		\end{tikzpicture}
+	\end{columns}
+\end{frame}
+
+
+
+
+
+
+
+
+\begin{frame}{Kết Quả Baseline -- MinMaxScaler}
+	\centering
+	
+	\begin{tabular}{lccc}
+		\toprule
+		\textbf{Mô hình} & \textbf{Acc} & \textbf{Std} & \textbf{Rank} \\
+		\midrule
+		SVM     & \textbf{0.8317} & $\pm$0.0117 & 1 \\
+		LR      & 0.8047 & $\pm$0.0215 & 2 \\
+		KNN     & 0.8036 & $\pm$0.0218 & 3 \\
+		LDA     & 0.7991 & $\pm$0.0224 & 4 \\
+		NB      & 0.7969 & $\pm$0.0080 & 5 \\
+		CART    & 0.7755 & $\pm$0.0291 & 6 \\
+		\bottomrule
+	\end{tabular}
+	
+	\vspace{0.4em}
+	
+	\begin{itemize}
+		\item SVM cao nhất (0.8317), ổn định nhất (±0.0117)
+		\item LR, KNN $\approx$80.4\%; LDA, NB ổn
+		\item CART thấp nhất (0.7755), biến động cao
+		\item MinMax > Standard: SVM +0.79\%, CART +0.14\%
+	\end{itemize}
+\end{frame}
+
+
+\begin{frame}{Boxplot Baseline -- MinMaxScaler}
+	\centering
+	\includegraphics[width=0.9\textwidth]{boxplot_baseline_minmaxscaler.png}
+	
+	\vspace{0.4em}
+	
+	\begin{itemize}
+		\item SVM: Median 0.8258, hộp hẹp, ổn định
+		\item LR: Median 0.8034, ổn định tốt
+		\item KNN, LDA: $\approx$0.79, ổn định TB
+		\item NB: Ổn định, acc trung bình
+		\item CART: Median 0.7584, biến thiên cao
+		\item MinMax > Standard: SVM +0.58\%, LR +2.54\%
+	\end{itemize}
+\end{frame}
+
+
+
+
+
+\begin{frame}{Tuning \& Kết Quả Final -- MinMaxScaler}
+	\centering
+	
+	\begin{tabular}{lccc}
+		\toprule
+		\textbf{Mô hình} & \textbf{CV Acc} & \textbf{Train Acc} & \textbf{Gap} \\
+		\midrule
+		KNN     & 0.8114 & 0.8496 & 3.82\% \\
+		SVM     & \textbf{0.8249} & 0.8305 & \textbf{0.56\%} \\
+		\bottomrule
+	\end{tabular}
+	
+	\vspace{0.4em}
+	
+	\begin{itemize}
+		\item KNN: \texttt{n=7}
+		\item SVM: \texttt{C=1, gamma=auto}
+		\item SVM > KNN +1.35\%, ổn định hơn
+		\item Gap nhỏ → ít overfit
+		\item \textbf{Chọn SVM, KNN làm final}
+		\item StandardScaler > MinMax
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{\textbf{Kết Quả Test – MinMaxScaler}}
+	
+	\centering
+	\small
+	\begin{tabular}{lcc}
+		\toprule
+		\textbf{Mô hình} & \textbf{Not Survived} & \textbf{Survived} \\
+		\midrule
+		\textbf{SVM} & 225 & 193 \\
+		\textbf{KNN (Backup)} & 218 & 200 \\
+		\bottomrule
+	\end{tabular}
+	
+	\vspace{0.6em}
+	
+	\begin{itemize}
+		\item \textbf{SVM} dự đoán cân bằng, ổn định.  
+		\item \textbf{KNN} thiên nhẹ về lớp sống sót.  
+		\item Cả hai có phân bố gần tương đương.  
+		\item Chốt: \textbf{SVM + MinMaxScaler} hiệu quả hơn.
+	\end{itemize}
+	
+\end{frame}
+
+
+\begin{frame}{So Sánh 2 Phương Pháp Chuẩn Hóa}
+	
+	\centering
+	\small
+	\begin{tabular}{lcc}
+		\toprule
+		\textbf{Tiêu chí} & \textbf{StandardScaler (Model 1)} & \textbf{MinMaxScaler (Model 2)} \\
+		\midrule
+		Data & df\_standard.xlsx & df\_minmax.xlsx \\
+		Baseline Best & SVM: 0.8238 $\pm$ 0.0175 & \textbf{SVM: 0.8317 $\pm$ 0.0117} \\
+		Baseline Median & SVM: 0.8156 & SVM: 0.8258 \\
+		Mô hình Tuning & LR + SVM & KNN + SVM \\
+		Tuning Best (CV) & \textbf{SVM: 0.8283} & SVM: 0.8249 \\
+		Tuning Train Acc & 0.8339 & 0.8305 \\
+		Gap (Overfitting) & 0.56\% & 0.56\% \\
+		Kết luận &  Ổn định tốt &  Ổn định tốt \\
+		\bottomrule 
+	\end{tabular}
+	
+	\vspace{0.6em}
+	
+	\begin{itemize}
+		\item \textbf{MinMaxScaler:} Hiệu suất baseline cao hơn, ổn định khi chưa tuning.
+		\item \textbf{StandardScaler:} Cải thiện hiệu quả hơn sau khi tuning (SVM đạt 82.83\%).
+		\item Cả hai phương pháp đều ổn định và cho kết quả gần tương đương.
+	\end{itemize}
+	
+\end{frame}
+
+	
+\begin{frame}{Kết Luận }
+	\begin{itemize}
+		\item Model 1: SVM + StandardScaler \quad \alert{Kaggle: 0.72248}
+		\item Model 2: SVM + MinMaxScaler   \quad \alert{Kaggle: 0.71770}
+		\item Cả hai ổn định, gap < 1\%
+		\item Nộp chính: Model 1 (GridSearchCV)
+		\item Nộp phụ:   Model 2 (RandomizedSearchCV)
+		\item Hướng tới: XGBoost + Cabin + Age GAN
+	\end{itemize}
+\end{frame}
+
+
+
+
+
+
+
+
+
+
+\begin{frame}
+\centering
+\Huge \textbf{Cảm ơn thầy và các bạn!}
+\end{frame}
+
+\end{document}
